@@ -1,0 +1,51 @@
+{
+    "name": "mca/hub",
+    "description": "MCA package hub: installed packages, remote catalog, framework-aware listing.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "mca", "hub", "packages"],
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^11.0|^12.0|^13.0",
+        "composer-runtime-api": "^2.2"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^11.0|^12.0"
+    },
+    "suggest": {
+        "mca/permission": "Root access middleware and permission admin UI"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mca\\Hub\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mca\\Hub\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mca\\Hub\\HubServiceProvider"
+            ]
+        },
+        "mca": {
+            "slug": "hub",
+            "title": {
+                "en": "MCA Hub",
+                "tr": "MCA Hub"
+            },
+            "route": "mca.hub.index",
+            "github": "https://github.com/MCA43/mca-hub",
+            "hidden": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

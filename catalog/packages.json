@@ -1,0 +1,78 @@
+{
+    "updated_at": "2026-06-28",
+    "maintainer": "https://github.com/MCA43",
+    "packages": [
+        {
+            "name": "mca/permission",
+            "slug": "permission",
+            "title": {
+                "en": "Permissions",
+                "tr": "İzinler"
+            },
+            "description": {
+                "en": "Controller scanning, scan segments, roles, users, departments, McaUi modal, middleware.",
+                "tr": "Controller tarama, segment yolları, roller, kullanıcılar, departmanlar, McaUi modal, middleware."
+            },
+            "frameworks": ["laravel11", "laravel12", "laravel13"],
+            "github": "https://github.com/MCA43/mca-permission",
+            "composer": "composer require mca/permission",
+            "route": "mca.permission.index",
+            "icon": "shield",
+            "order": 10
+        },
+        {
+            "name": "mca/hub",
+            "slug": "hub",
+            "title": {
+                "en": "MCA Hub",
+                "tr": "MCA Hub"
+            },
+            "description": {
+                "en": "Package dashboard and remote catalog.",
+                "tr": "Paket paneli ve uzak katalog."
+            },
+            "frameworks": ["laravel11", "laravel12", "laravel13"],
+            "github": "https://github.com/MCA43/mca-hub",
+            "composer": "composer require mca/hub",
+            "route": "mca.hub.index",
+            "icon": "box",
+            "order": 5,
+            "hidden": true
+        },
+        {
+            "name": "mca/settings",
+            "slug": "settings",
+            "title": {
+                "en": "Settings",
+                "tr": "Ayarlar"
+            },
+            "description": {
+                "en": "Application settings key-value store with admin UI.",
+                "tr": "Uygulama ayarları ve yönetim arayüzü."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-settings",
+            "composer": "composer require mca/settings",
+            "icon": "cog",
+            "order": 20,
+            "status": "planned"
+        },
+        {
+            "name": "mca/permission-ci3",
+            "slug": "permission-ci3",
+            "title": {
+                "en": "Permissions (CodeIgniter 3)",
+                "tr": "İzinler (CodeIgniter 3)"
+            },
+            "description": {
+                "en": "RBAC module for CodeIgniter 3 applications.",
+                "tr": "CodeIgniter 3 için RBAC modülü."
+            },
+            "frameworks": ["codeigniter3"],
+            "github": "https://github.com/MCA43/mca-permission-ci3",
+            "icon": "shield",
+            "order": 10,
+            "status": "planned"
+        }
+    ]
+}
