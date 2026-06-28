@@ -10,6 +10,7 @@ final class PackageCatalog
 {
     public function __construct(
         private readonly InstalledPackageResolver $installed,
+        private readonly GitHubOrgCatalog $githubCatalog,
     ) {}
 
     /**
@@ -86,18 +87,83 @@ final class PackageCatalog
                     if ($response->successful()) {
                         $data = $response->json();
                         if (is_array($data) && isset($data['packages'])) {
-                            return $data;
+                            return $this->mergeCatalogSources($data);
                         }
                     }
                 } catch (\Throwable) {
                     // fallback below
                 }
 
-                return $this->readFallback($fallback);
+                return $this->mergeCatalogSources($this->readFallback($fallback));
             });
         }
 
-        return $this->readFallback($fallback);
+        return $this->mergeCatalogSources($this->readFallback($fallback));
+    }
+
+    /**
+     * @param  array{updated_at: ?string, packages: list<array<string, mixed>>}  $catalog
+     * @return array{updated_at: ?string, packages: list<array<string, mixed>>, sources: list<string>}
+     */
+    private function mergeCatalogSources(array $catalog): array
+    {
+        $sources = [];
+        $packages = $catalog['packages'] ?? [];
+
+        if (is_string(config('hub.catalog.url')) && config('hub.catalog.url') !== '') {
+            $sources[] = 'remote';
+        } elseif (is_file((string) config('hub.catalog.fallback'))) {
+            $sources[] = 'local';
+        }
+
+        $githubEntries = $this->githubCatalog->entries();
+        if ($githubEntries !== []) {
+            $sources[] = 'github';
+            $packages = $this->mergePackageLists($packages, $githubEntries);
+        }
+
+        return [
+            'updated_at' => $catalog['updated_at'] ?? null,
+            'packages' => array_values($packages),
+            'sources' => $sources,
+        ];
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $base
+     * @param  list<array<string, mixed>>  $incoming
+     * @return list<array<string, mixed>>
+     */
+    private function mergePackageLists(array $base, array $incoming): array
+    {
+        $indexed = [];
+
+        foreach ($base as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+            $key = (string) ($entry['slug'] ?? $entry['name'] ?? '');
+            if ($key !== '') {
+                $indexed[$key] = $entry;
+            }
+        }
+
+        foreach ($incoming as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+            $key = (string) ($entry['slug'] ?? $entry['name'] ?? '');
+            if ($key === '') {
+                continue;
+            }
+            if (! isset($indexed[$key])) {
+                $indexed[$key] = $entry;
+                continue;
+            }
+            $indexed[$key] = array_merge($entry, $indexed[$key]);
+        }
+
+        return array_values($indexed);
     }
 
     /** @param  array<string, mixed>  $entry

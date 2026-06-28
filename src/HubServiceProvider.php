@@ -5,6 +5,7 @@ namespace Mca\Hub;
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Mca\Hub\Http\Middleware\EnsureHubAccess;
+use Mca\Hub\Services\GitHubOrgCatalog;
 use Mca\Hub\Services\HubRegistry;
 use Mca\Hub\Services\InstalledPackageResolver;
 use Mca\Hub\Services\PackageCatalog;
@@ -17,6 +18,7 @@ class HubServiceProvider extends ServiceProvider
 
         $this->app->singleton(HubRegistry::class);
         $this->app->singleton(InstalledPackageResolver::class);
+        $this->app->singleton(GitHubOrgCatalog::class);
         $this->app->singleton(PackageCatalog::class);
     }
 

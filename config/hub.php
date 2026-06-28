@@ -24,6 +24,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | GitHub catalog (mca-* repos under a user or organization)
+    |--------------------------------------------------------------------------
+    | Lists public repos with repo_prefix (default mca-). Reads composer.json
+    | extra.mca from each repo when fetch_composer_extra is true.
+    | account_type: org | user | auto (try org, then user)
+    */
+    'github' => [
+        'enabled' => env('MCA_HUB_GITHUB_CATALOG', true),
+        'org' => env('MCA_HUB_GITHUB_ORG', 'MCA43'),
+        'account_type' => env('MCA_HUB_GITHUB_ACCOUNT_TYPE', 'auto'),
+        'repo_prefix' => env('MCA_HUB_GITHUB_REPO_PREFIX', 'mca-'),
+        'token' => env('MCA_HUB_GITHUB_TOKEN'),
+        'cache_ttl' => (int) env('MCA_HUB_GITHUB_CACHE_TTL', 3600),
+        'fetch_composer_extra' => env('MCA_HUB_GITHUB_FETCH_COMPOSER', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Framework override (auto-detected when null)
     | Examples: laravel11, laravel13, codeigniter3
     |--------------------------------------------------------------------------

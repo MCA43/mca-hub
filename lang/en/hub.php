@@ -10,6 +10,7 @@ return [
         'catalog_updated' => 'Catalog updated: :date',
         'catalog_local' => 'Using bundled catalog',
         'catalog_remote' => 'Remote catalog',
+        'catalog_github' => 'GitHub: :org (mca-* repos)',
     ],
     'status' => [
         'installed' => 'Installed',

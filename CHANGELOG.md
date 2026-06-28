@@ -4,6 +4,11 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 
 ## [Unreleased]
 
+### Added
+- GitHub katalog kaynağı — `MCA43` altındaki `mca-*` repoları otomatik listelenir
+- `composer.json` → `extra.mca` GitHub raw üzerinden okunur
+- `MCA_HUB_GITHUB_*` yapılandırma anahtarları (`account_type`: org / user / auto)
+
 ## [0.1.0] - 2026-06-28
 
 ### Added

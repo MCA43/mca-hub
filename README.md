@@ -8,6 +8,7 @@ MCA package hub for Laravel: `/mca` dashboard with framework-aware package cards
 
 - **Installed detection** — reads `composer.lock` via `InstalledVersions`
 - **Remote catalog** — fetch `packages.json` from GitHub (cached)
+- **GitHub discovery** — auto-lists `mca-*` repos and reads `extra.mca`
 - **Framework filter** — auto-detects Laravel 11/12/13; only lists compatible packages
 - **Composer `extra.mca`** — packages self-describe for the hub
 - **Root access** — uses `mca/permission` `PermissionService::isRoot()` when available
@@ -37,6 +38,10 @@ Open `/mca` as root user.
 ```env
 MCA_HUB_ENABLED=true
 MCA_HUB_CATALOG_URL=https://raw.githubusercontent.com/MCA43/mca-catalog/main/packages.json
+MCA_HUB_GITHUB_CATALOG=true
+MCA_HUB_GITHUB_ORG=MCA43
+MCA_HUB_GITHUB_ACCOUNT_TYPE=auto
+MCA_HUB_GITHUB_REPO_PREFIX=mca-
 MCA_HUB_USE_PERMISSION_ROOT=true
 MCA_HUB_ROLE_COLUMN=role_id
 ```
@@ -44,6 +49,11 @@ MCA_HUB_ROLE_COLUMN=role_id
 | Key | Description |
 |-----|-------------|
 | `catalog.url` | Remote `packages.json` URL (optional) |
+| `github.enabled` | Pull `mca-*` repos from GitHub |
+| `github.org` | GitHub user or organization name |
+| `github.account_type` | `auto` (org then user), `org`, or `user` |
+| `github.repo_prefix` | Repo name prefix (default `mca-`) |
+| `github.token` | Optional PAT for higher rate limits |
 | `access.use_permission_root` | Delegate root check to `mca/permission` |
 | `access.role_column` | Fallback when permission not installed (`role_id` recommended) |
 
@@ -64,7 +74,7 @@ MCA_HUB_ROLE_COLUMN=role_id
 }
 ```
 
-Without URL, bundled `catalog/packages.json` is used.
+Without URL, bundled `catalog/packages.json` is used. When GitHub discovery is enabled, repos like `mca-hub` and `mca-permission` are added; local/remote catalog entries take precedence.
 
 ## Register a package
 

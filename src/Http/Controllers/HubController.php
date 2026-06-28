@@ -26,6 +26,7 @@ class HubController
             'packages' => $this->catalog->packagesForCurrentFramework(),
             'catalogUpdatedAt' => $catalogMeta['updated_at'] ?? null,
             'catalogUrl' => config('hub.catalog.url'),
+            'catalogSources' => $catalogMeta['sources'] ?? [],
         ]);
     }
 }

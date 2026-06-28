@@ -29,6 +29,8 @@
                     <span class="mca-hub-muted">{{ mca_hub('meta.catalog_updated', ['date' => $catalogUpdatedAt]) }}</span>
                 @elseif($catalogUrl)
                     <span class="mca-hub-muted">{{ mca_hub('meta.catalog_remote') }}</span>
+                @elseif(in_array('github', $catalogSources ?? [], true))
+                    <span class="mca-hub-muted">{{ mca_hub('meta.catalog_github', ['org' => config('hub.github.org', 'MCA43')]) }}</span>
                 @else
                     <span class="mca-hub-muted">{{ mca_hub('meta.catalog_local') }}</span>
                 @endif

@@ -10,6 +10,7 @@ return [
         'catalog_updated' => 'Katalog güncellendi: :date',
         'catalog_local' => 'Yerel katalog kullanılıyor',
         'catalog_remote' => 'Uzak katalog',
+        'catalog_github' => 'GitHub: :org (mca-* repoları)',
     ],
     'status' => [
         'installed' => 'Kurulu',
