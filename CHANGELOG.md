@@ -4,6 +4,8 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-28
+
 ### Added
 - GitHub katalog kaynağı — `MCA43` altındaki `mca-*` repoları otomatik listelenir
 - `composer.json` → `extra.mca` GitHub raw üzerinden okunur
