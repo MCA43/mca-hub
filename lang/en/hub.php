@@ -80,6 +80,7 @@ return [
         'git_clone_failed' => 'Could not clone the GitHub repository. HTTPS is required; set MCA_HUB_GITHUB_TOKEN if needed (do not use SSH).',
         'git_not_in_path' => 'Git is missing from the PHP process PATH. Fix Laragon/Git PATH or set MCA_HUB_GITHUB_TOKEN so Composer can use HTTPS zip downloads.',
         'php_temp_unwritable' => 'PHP temp directory is not writable (often C:\\Windows). Hub now uses project storage temp — refresh and try again.',
+        'php_cli_missing' => 'PHP CLI was not found for Hub Composer (web SAPI may expose nginx/apache as PHP_BINARY). Set MCA_HUB_PHP_BIN to php.exe.',
         'stability_blocked' => 'Package has no stable tags yet. Hub installs via `dev-main`; check composer.json minimum-stability.',
         'github_repo_empty' => 'GitHub repository is empty — push package code to the repo first.',
         'github_no_composer' => 'composer.json was not found on the default branch. Push the package, then refresh Hub updates.',

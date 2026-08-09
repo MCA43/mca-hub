@@ -83,6 +83,8 @@ return [
         'enabled' => env('MCA_HUB_UPDATES', true),
         'cache_ttl' => (int) env('MCA_HUB_UPDATES_CACHE_TTL', 3600),
         'composer_bin' => env('MCA_HUB_COMPOSER_BIN', 'composer'),
+        // Absolute php.exe for Hub composer runs (auto-detected when null)
+        'php_bin' => env('MCA_HUB_PHP_BIN'),
         'timeout' => (int) env('MCA_HUB_UPDATE_TIMEOUT', 300),
         'prefer_stable' => env('MCA_HUB_UPDATE_PREFER_STABLE', true),
         // Path/symlink monorepo packages: show newer GitHub tags but block composer update by default

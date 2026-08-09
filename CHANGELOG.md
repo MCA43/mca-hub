@@ -25,6 +25,7 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 - Published `captcha` / `smtp` / `seo` / `netgsm` to GitHub; catalog entries are installable again
 - Hub composer installs force HTTPS (`github-protocols`), inject Git into PATH, use `dev-main`, and map cryptic “to run correctly” errors
 - Hub Composer uses `storage/app/mca-hub-tmp` via `php -d sys_temp_dir=...` (fixes C:\\Windows temp under Laragon/Apache)
+- Resolve real PHP CLI for Composer (ignore nginx/apache `PHP_BINARY` under web SAPI)
 ## [0.2.0] - 2026-08-09
 
 ### Added

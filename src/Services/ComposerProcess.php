@@ -41,8 +41,8 @@ final class ComposerProcess
     }
 
     /**
-     * Run Composer through PHP with an explicit writable sys_temp_dir.
-     * Laragon/Apache often leaves sys_get_temp_dir() as C:\Windows.
+     * Run Composer through PHP CLI with an explicit writable sys_temp_dir.
+     * Laragon/nginx web SAPI often exposes PHP_BINARY as nginx.exe — never use that.
      *
      * @return list<string>
      */
@@ -50,15 +50,95 @@ final class ComposerProcess
     {
         $bin = (string) config('hub.updates.composer_bin', 'composer');
         $tmp = $this->tempDirectory();
-        $php = PHP_BINARY !== '' ? PHP_BINARY : 'php';
+        $php = $this->resolvePhpCli();
 
         $phar = $this->resolveComposerPhar($bin);
-        if ($phar !== null) {
+        if ($phar !== null && $php !== null) {
             return [$php, '-d', 'sys_temp_dir='.$tmp, $phar];
         }
 
         // Fallback: shell composer + env TMP/TEMP (set in processEnvironment).
         return [$bin];
+    }
+
+    /**
+     * Absolute path to a PHP CLI binary suitable for running Composer.
+     */
+    private function resolvePhpCli(): ?string
+    {
+        $configured = config('hub.updates.php_bin');
+        if (is_string($configured) && $configured !== '' && $this->isUsablePhpCli($configured)) {
+            return $configured;
+        }
+
+        if (PHP_SAPI === 'cli' && PHP_BINARY !== '' && $this->isUsablePhpCli(PHP_BINARY)) {
+            return PHP_BINARY;
+        }
+
+        // Prefer sibling php.exe next to php-cgi.exe (common under Laragon FastCGI).
+        if (PHP_BINARY !== '') {
+            $dir = dirname(PHP_BINARY);
+            foreach (['php.exe', 'php'] as $name) {
+                $candidate = $dir.DIRECTORY_SEPARATOR.$name;
+                if ($this->isUsablePhpCli($candidate)) {
+                    return $candidate;
+                }
+            }
+        }
+
+        foreach ($this->laragonPhpCliCandidates() as $candidate) {
+            if ($this->isUsablePhpCli($candidate)) {
+                return $candidate;
+            }
+        }
+
+        foreach (['php', 'php.exe'] as $name) {
+            if ($this->isUsablePhpCli($name)) {
+                return $name;
+            }
+        }
+
+        return null;
+    }
+
+    /** @return list<string> */
+    private function laragonPhpCliCandidates(): array
+    {
+        $roots = ['C:\\laragon\\bin\\php'];
+        $out = [];
+
+        foreach ($roots as $root) {
+            if (! is_dir($root)) {
+                continue;
+            }
+            $dirs = glob($root.DIRECTORY_SEPARATOR.'php-*', GLOB_ONLYDIR) ?: [];
+            rsort($dirs);
+            foreach ($dirs as $dir) {
+                $out[] = $dir.DIRECTORY_SEPARATOR.'php.exe';
+            }
+        }
+
+        return $out;
+    }
+
+    private function isUsablePhpCli(string $binary): bool
+    {
+        $base = strtolower(basename(str_replace('\\', '/', $binary)));
+        $blocked = [
+            'nginx.exe', 'nginx',
+            'httpd.exe', 'httpd', 'apache.exe', 'apache2',
+            'php-cgi.exe', 'php-cgi',
+            'php-fpm.exe', 'php-fpm',
+        ];
+        if (in_array($base, $blocked, true)) {
+            return false;
+        }
+
+        if ($binary === 'php' || $binary === 'php.exe') {
+            return true;
+        }
+
+        return is_file($binary);
     }
 
     private function resolveComposerPhar(string $bin): ?string
@@ -71,16 +151,6 @@ final class ComposerProcess
 
         $candidates[] = 'C:\\laragon\\bin\\composer\\composer.phar';
         $candidates[] = 'C:\\ProgramData\\ComposerSetup\\bin\\composer.phar';
-
-        $which = trim((string) shell_exec('where composer.phar 2>nul'));
-        if ($which !== '') {
-            foreach (preg_split('/\R/', $which) ?: [] as $line) {
-                $line = trim($line);
-                if ($line !== '' && is_file($line)) {
-                    $candidates[] = $line;
-                }
-            }
-        }
 
         foreach ($candidates as $path) {
             if (is_file($path)) {
@@ -124,9 +194,17 @@ final class ComposerProcess
         if (
             str_contains($lower, 'sys_temp_dir')
             || str_contains($lower, 'php temp directory')
-            || str_contains($lower, 'temp directory') && str_contains($lower, 'not writable')
+            || (str_contains($lower, 'temp directory') && str_contains($lower, 'not writable'))
         ) {
             return mca_hub('lifecycle.php_temp_unwritable');
+        }
+
+        if (
+            str_contains($lower, 'only one worker, do not detach')
+            || str_contains($lower, 'usage: nginx')
+            || (str_contains($lower, 'nginx version') && str_contains($lower, '-x'))
+        ) {
+            return mca_hub('lifecycle.php_cli_missing');
         }
 
         $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', $output) ?: [])));
@@ -134,10 +212,13 @@ final class ComposerProcess
             return mca_hub('lifecycle.composer_failed');
         }
 
-        // Prefer the most informative line (avoid tiny wrap fragments like "to run correctly.").
+        // Prefer the most informative line (avoid tiny wrap fragments / CLI flag help).
         $best = '';
         foreach (array_reverse($lines) as $line) {
             if ($line === '' || str_starts_with($line, 'require [') || str_starts_with($line, 'In ')) {
+                continue;
+            }
+            if (preg_match('/^-\w\b/', $line) === 1) {
                 continue;
             }
             if (mb_strlen($line) < 24 && $best !== '') {
