@@ -11,6 +11,7 @@ final class PackageInstaller
         private readonly ComposerRepositoryManager $repos,
         private readonly ComposerProcess $composer,
         private readonly UpdateChecker $checker,
+        private readonly GitHubPackageProbe $githubProbe,
     ) {}
 
     /**
@@ -48,6 +49,15 @@ final class PackageInstaller
             return $this->fail('lifecycle.invalid_repo');
         }
 
+        $probe = $this->githubProbe->assertInstallable($gitUrl);
+        if (! ($probe['ok'] ?? false)) {
+            return [
+                'ok' => false,
+                'message' => (string) ($probe['message'] ?? mca_hub('lifecycle.github_no_composer')),
+                'output' => '',
+            ];
+        }
+
         $ensure = $this->repos->ensureVcsRepository($gitUrl);
         if (! ($ensure['ok'] ?? false)) {
             return [
@@ -65,6 +75,7 @@ final class PackageInstaller
             $composerName,
             '--no-interaction',
             '--with-all-dependencies',
+            '--prefer-dist',
         ];
 
         if (config('hub.lifecycle.prefer_stable', config('hub.updates.prefer_stable', true))) {

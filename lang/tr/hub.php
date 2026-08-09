@@ -70,6 +70,11 @@ return [
         'invalid_repo' => 'GitHub depo URL’si izin verilen org/prefix ile uyuşmuyor.',
         'composer_unwritable' => 'composer.json yazılabilir değil.',
         'composer_invalid' => 'composer.json okunamadı veya geçersiz.',
+        'composer_failed' => 'Composer komutu başarısız oldu.',
+        'git_clone_failed' => 'GitHub deposu klonlanamadı. Sunucuda HTTPS erişimi veya MCA_HUB_GITHUB_TOKEN gerekli olabilir.',
+        'github_repo_empty' => 'GitHub deposu boş — önce paket kodunu repoya push edin.',
+        'github_no_composer' => 'GitHub deposunda composer.json bulunamadı; paket henüz yayınlanmamış olabilir.',
+        'package_not_on_github' => 'Paket GitHub’da bulunamadı; depo boş veya tag/release yok.',
         'failed' => ':package işlemi başarısız: :error',
     ],
     'modal' => [

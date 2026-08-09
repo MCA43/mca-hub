@@ -70,6 +70,11 @@ return [
         'invalid_repo' => 'GitHub repository URL does not match the allowed org/prefix.',
         'composer_unwritable' => 'composer.json is not writable.',
         'composer_invalid' => 'composer.json could not be read or is invalid.',
+        'composer_failed' => 'Composer command failed.',
+        'git_clone_failed' => 'Could not clone the GitHub repository. HTTPS access or MCA_HUB_GITHUB_TOKEN may be required.',
+        'github_repo_empty' => 'GitHub repository is empty — push package code to the repo first.',
+        'github_no_composer' => 'No composer.json found on GitHub; the package may not be published yet.',
+        'package_not_on_github' => 'Package not found on GitHub; repo may be empty or missing tags/releases.',
         'failed' => ':package operation failed: :error',
     ],
     'modal' => [
