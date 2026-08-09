@@ -79,6 +79,7 @@ return [
         'composer_failed' => 'Composer komutu başarısız oldu.',
         'git_clone_failed' => 'GitHub deposu klonlanamadı. HTTPS zorunlu; gerekirse MCA_HUB_GITHUB_TOKEN ekleyin (SSH kullanmayın).',
         'git_not_in_path' => 'Git, PHP sürecinin PATH değişkeninde yok. Laragon/Git kurulumunu kontrol edin veya MCA_HUB_GITHUB_TOKEN ile HTTPS zip kurulumunu deneyin.',
+        'php_temp_unwritable' => 'PHP geçici klasörü yazılabilir değil (çoğu zaman C:\\Windows). Hub artık proje storage temp kullanır; sayfayı yenileyip tekrar deneyin.',
         'stability_blocked' => 'Paket henüz kararlı sürüm (tag) yayınlamamış. Hub `dev-main` ile kurmayı dener; composer.json minimum-stability ayarını kontrol edin.',
         'github_repo_empty' => 'GitHub deposu boş — önce paket kodunu repoya push edin.',
         'github_no_composer' => 'GitHub deposunda composer.json bulunamadı (default branch). Paketi push edip Hub’da “Güncellemeleri kontrol et” ile yenileyin.',

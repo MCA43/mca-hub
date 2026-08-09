@@ -13,13 +13,12 @@ final class ComposerProcess
      */
     public function run(array $arguments): array
     {
-        $bin = (string) config('hub.updates.composer_bin', 'composer');
         $timeout = (int) config('hub.updates.timeout', 300);
         $cwd = base_path();
 
         $this->ensureComposerHome();
 
-        $command = array_merge([$bin], $arguments);
+        $command = array_merge($this->composerCommandPrefix(), $arguments);
         $process = new Process($command, $cwd, $this->processEnvironment(), null, $timeout);
 
         try {
@@ -39,6 +38,57 @@ final class ComposerProcess
             'output' => $output,
             'exit_code' => $process->getExitCode() ?? 1,
         ];
+    }
+
+    /**
+     * Run Composer through PHP with an explicit writable sys_temp_dir.
+     * Laragon/Apache often leaves sys_get_temp_dir() as C:\Windows.
+     *
+     * @return list<string>
+     */
+    private function composerCommandPrefix(): array
+    {
+        $bin = (string) config('hub.updates.composer_bin', 'composer');
+        $tmp = $this->tempDirectory();
+        $php = PHP_BINARY !== '' ? PHP_BINARY : 'php';
+
+        $phar = $this->resolveComposerPhar($bin);
+        if ($phar !== null) {
+            return [$php, '-d', 'sys_temp_dir='.$tmp, $phar];
+        }
+
+        // Fallback: shell composer + env TMP/TEMP (set in processEnvironment).
+        return [$bin];
+    }
+
+    private function resolveComposerPhar(string $bin): ?string
+    {
+        $candidates = [];
+
+        if (str_ends_with(strtolower($bin), '.phar') && is_file($bin)) {
+            $candidates[] = $bin;
+        }
+
+        $candidates[] = 'C:\\laragon\\bin\\composer\\composer.phar';
+        $candidates[] = 'C:\\ProgramData\\ComposerSetup\\bin\\composer.phar';
+
+        $which = trim((string) shell_exec('where composer.phar 2>nul'));
+        if ($which !== '') {
+            foreach (preg_split('/\R/', $which) ?: [] as $line) {
+                $line = trim($line);
+                if ($line !== '' && is_file($line)) {
+                    $candidates[] = $line;
+                }
+            }
+        }
+
+        foreach ($candidates as $path) {
+            if (is_file($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 
     public function shortError(string $output): string
@@ -69,6 +119,14 @@ final class ComposerProcess
 
         if (str_contains($lower, 'minimum-stability') || str_contains($lower, 'stability flags')) {
             return mca_hub('lifecycle.stability_blocked');
+        }
+
+        if (
+            str_contains($lower, 'sys_temp_dir')
+            || str_contains($lower, 'php temp directory')
+            || str_contains($lower, 'temp directory') && str_contains($lower, 'not writable')
+        ) {
+            return mca_hub('lifecycle.php_temp_unwritable');
         }
 
         $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', $output) ?: [])));
@@ -105,11 +163,21 @@ final class ComposerProcess
         return storage_path('app/mca-hub-composer-home');
     }
 
+    public function tempDirectory(): string
+    {
+        return storage_path('app/mca-hub-tmp');
+    }
+
     private function ensureComposerHome(): void
     {
         $home = $this->composerHome();
         if (! is_dir($home)) {
             File::makeDirectory($home, 0755, true);
+        }
+
+        $tmp = $this->tempDirectory();
+        if (! is_dir($tmp)) {
+            File::makeDirectory($tmp, 0755, true);
         }
 
         // Composer warns / may skip global config when composer.json is missing in COMPOSER_HOME.
@@ -168,10 +236,17 @@ final class ComposerProcess
         }
 
         $home = $this->composerHome();
+        $tmp = $this->tempDirectory();
         $base['COMPOSER_HOME'] = $home;
         $base['PATH'] = $this->pathWithGit($base['PATH'] ?? (getenv('PATH') ?: ''));
         $base['GIT_CONFIG_GLOBAL'] = $home.DIRECTORY_SEPARATOR.'gitconfig';
         $base['GIT_CONFIG_NOSYSTEM'] = '1';
+
+        // Apache/Laragon PHP often resolves sys_get_temp_dir() to C:\Windows (not writable).
+        // Composer CLI inherits these and uses a project-writable temp instead.
+        $base['TMP'] = $tmp;
+        $base['TEMP'] = $tmp;
+        $base['TMPDIR'] = $tmp;
 
         // Force HTTPS for GitHub when Composer falls back to git clone (Windows/SSH issues).
         $base['GIT_CONFIG_COUNT'] = '3';
