@@ -12,6 +12,7 @@ final class PackageInstaller
         private readonly ComposerProcess $composer,
         private readonly UpdateChecker $checker,
         private readonly GitHubPackageProbe $githubProbe,
+        private readonly PackageSetupRunner $setup,
     ) {}
 
     /**
@@ -112,10 +113,26 @@ final class PackageInstaller
 
         $this->repos->remember($composerName, $gitUrl);
 
+        $setup = $this->setup->afterInstall($composerName);
+        $output = trim($result['output']."\n".$setup['output']);
+
+        if (! ($setup['ok'] ?? false)) {
+            return [
+                'ok' => true,
+                'message' => mca_hub('lifecycle.install_success_setup_warn', [
+                    'package' => $composerName,
+                    'error' => (string) ($setup['message'] ?? mca_hub('lifecycle.setup_failed', [
+                        'package' => $composerName,
+                    ])),
+                ]),
+                'output' => $output,
+            ];
+        }
+
         return [
             'ok' => true,
             'message' => mca_hub('lifecycle.install_success', ['package' => $composerName]),
-            'output' => $result['output'],
+            'output' => $output,
         ];
     }
 

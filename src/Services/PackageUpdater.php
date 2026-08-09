@@ -8,6 +8,7 @@ final class PackageUpdater
         private readonly InstalledPackageResolver $installed,
         private readonly UpdateChecker $checker,
         private readonly ComposerProcess $composer,
+        private readonly PackageSetupRunner $setup,
     ) {}
 
     /**
@@ -56,10 +57,12 @@ final class PackageUpdater
             ];
         }
 
+        $assets = $this->setup->afterUpdate($composerName);
+
         return [
             'ok' => true,
             'message' => mca_hub('updates.success', ['package' => $composerName]),
-            'output' => $result['output'],
+            'output' => trim($result['output']."\n".$assets['output']),
         ];
     }
 

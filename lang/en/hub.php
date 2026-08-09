@@ -67,6 +67,8 @@ return [
         'busy_update' => 'Updating :package… Composer is running, please wait.',
         'busy_refresh' => 'Checking for updates…',
         'install_success' => ':package installed.',
+        'install_success_setup_warn' => ':package installed, but post-setup (CSS/migrate) reported: :error',
+        'setup_failed' => 'Could not finish asset/migrate setup for :package. Run `php artisan mca:{slug}:install`.',
         'install_failed' => 'Failed to install :package: :error',
         'remove_success' => ':package removed.',
         'remove_failed' => 'Failed to remove :package: :error',

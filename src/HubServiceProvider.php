@@ -16,6 +16,7 @@ use Mca\Hub\Services\PackageCatalog;
 use Mca\Hub\Services\PackageInstaller;
 use Mca\Hub\Services\PackageLifecycle;
 use Mca\Hub\Services\PackageRemover;
+use Mca\Hub\Services\PackageSetupRunner;
 use Mca\Hub\Services\PackageUpdater;
 use Mca\Hub\Services\UpdateChecker;
 
@@ -37,6 +38,7 @@ class HubServiceProvider extends ServiceProvider
         $this->app->singleton(PackageCatalog::class);
         $this->app->singleton(PackageInstaller::class);
         $this->app->singleton(PackageRemover::class);
+        $this->app->singleton(PackageSetupRunner::class);
     }
 
     public function boot(): void

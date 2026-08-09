@@ -109,6 +109,10 @@ return [
         // Branch constraint for Hub installs (packages are not on Packagist yet).
         'default_constraint' => env('MCA_HUB_LIFECYCLE_CONSTRAINT', 'dev-main'),
         'default_branch' => env('MCA_HUB_LIFECYCLE_BRANCH', 'main'),
+        // Optional overrides: composer name => artisan install command
+        'setup_commands' => [
+            'mca/uploads' => 'mca:upload:install',
+        ],
         'protected' => array_values(array_filter(array_map(
             'trim',
             explode(',', (string) env('MCA_HUB_PROTECTED_PACKAGES', 'mca/hub,mca/permission'))

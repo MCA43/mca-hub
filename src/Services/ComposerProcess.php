@@ -41,6 +41,62 @@ final class ComposerProcess
     }
 
     /**
+     * Run `php artisan …` with the same CLI/temp environment as Composer.
+     *
+     * @param  list<string>  $arguments  Args after `artisan` (e.g. ['mca:firewall:install'])
+     * @return array{ok: bool, output: string, exit_code: int}
+     */
+    public function runArtisan(array $arguments): array
+    {
+        $timeout = (int) config('hub.updates.timeout', 300);
+        $cwd = base_path();
+        $this->ensureComposerHome();
+
+        $php = $this->resolvePhpCli();
+        if ($php === null) {
+            return [
+                'ok' => false,
+                'output' => mca_hub('lifecycle.php_cli_missing'),
+                'exit_code' => 1,
+            ];
+        }
+
+        $artisan = base_path('artisan');
+        if (! is_file($artisan)) {
+            return [
+                'ok' => false,
+                'output' => 'artisan not found',
+                'exit_code' => 1,
+            ];
+        }
+
+        $tmp = $this->tempDirectory();
+        $command = array_merge(
+            [$php, '-d', 'sys_temp_dir='.$tmp, $artisan],
+            $arguments
+        );
+        $process = new Process($command, $cwd, $this->processEnvironment(), null, $timeout);
+
+        try {
+            $process->run();
+        } catch (\Throwable $e) {
+            return [
+                'ok' => false,
+                'output' => $e->getMessage(),
+                'exit_code' => 1,
+            ];
+        }
+
+        $output = trim($process->getOutput()."\n".$process->getErrorOutput());
+
+        return [
+            'ok' => $process->isSuccessful(),
+            'output' => $output,
+            'exit_code' => $process->getExitCode() ?? 1,
+        ];
+    }
+
+    /**
      * Run Composer through PHP CLI with an explicit writable sys_temp_dir.
      * Laragon/nginx web SAPI often exposes PHP_BINARY as nginx.exe — never use that.
      *

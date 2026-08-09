@@ -28,6 +28,7 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 - Resolve real PHP CLI for Composer (ignore nginx/apache `PHP_BINARY` under web SAPI)
 - Hub installs via GitHub branch zip (`type: package`) — no git clone / SSH
 - Full-page busy overlay after confirm for install/update/remove/refresh
+- After Hub install/update: run `mca:{slug}:install` (assets + migrate) with vendor copy fallback
 ## [0.2.0] - 2026-08-09
 
 ### Added

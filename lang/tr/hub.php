@@ -67,6 +67,8 @@ return [
         'busy_update' => ':package güncelleniyor… Composer çalışıyor, lütfen bekleyin.',
         'busy_refresh' => 'Güncellemeler kontrol ediliyor…',
         'install_success' => ':package kuruldu.',
+        'install_success_setup_warn' => ':package kuruldu; ancak kurulum sonrası adımlar (CSS/migrate) uyarı verdi: :error',
+        'setup_failed' => ':package için asset/migrate kurulumu tamamlanamadı. `php artisan mca:{slug}:install` çalıştırın.',
         'install_failed' => ':package kurulamadı: :error',
         'remove_success' => ':package kaldırıldı.',
         'remove_failed' => ':package kaldırılamadı: :error',
