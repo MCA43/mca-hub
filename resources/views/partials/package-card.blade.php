@@ -69,7 +69,8 @@
                   data-mca-confirm="{{ mca_hub('lifecycle.confirm_install', ['package' => $package['name']]) }}"
                   data-mca-confirm-title="{{ mca_hub('lifecycle.confirm_title') }}"
                   data-mca-confirm-text="{{ mca_hub('lifecycle.install') }}"
-                  data-mca-confirm-danger="0">
+                  data-mca-confirm-danger="0"
+                  data-mca-busy="{{ mca_hub('lifecycle.busy_install', ['package' => $package['name']]) }}">
                 @csrf
                 <input type="hidden" name="package" value="{{ $package['name'] }}">
                 <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--primary">{{ mca_hub('lifecycle.install') }}</button>
@@ -87,7 +88,8 @@
                   data-mca-confirm="{{ mca_hub('updates.confirm', ['package' => $package['name'], 'version' => $package['latest_version'] ?? '']) }}"
                   data-mca-confirm-title="{{ mca_hub('lifecycle.confirm_title') }}"
                   data-mca-confirm-text="{{ mca_hub('updates.update_now') }}"
-                  data-mca-confirm-danger="0">
+                  data-mca-confirm-danger="0"
+                  data-mca-busy="{{ mca_hub('lifecycle.busy_update', ['package' => $package['name']]) }}">
                 @csrf
                 <input type="hidden" name="package" value="{{ $package['name'] }}">
                 <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--update" title="{{ mca_hub('updates.update_button_hint') }}">{{ mca_hub('updates.update_now') }}</button>
@@ -103,7 +105,8 @@
                   data-mca-confirm="{{ mca_hub('lifecycle.confirm_remove', ['package' => $package['name']]) }}"
                   data-mca-confirm-title="{{ mca_hub('lifecycle.confirm_title') }}"
                   data-mca-confirm-text="{{ mca_hub('lifecycle.remove') }}"
-                  data-mca-confirm-danger="1">
+                  data-mca-confirm-danger="1"
+                  data-mca-busy="{{ mca_hub('lifecycle.busy_remove', ['package' => $package['name']]) }}">
                 @csrf
                 <input type="hidden" name="package" value="{{ $package['name'] }}">
                 <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--danger">{{ mca_hub('lifecycle.remove') }}</button>

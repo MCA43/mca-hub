@@ -70,7 +70,7 @@ final class PackageInstaller
             ];
         }
 
-        $ensure = $this->repos->ensureVcsRepository($gitUrl);
+        $ensure = $this->repos->ensureGithubDistRepository($composerName, $gitUrl);
         if (! ($ensure['ok'] ?? false)) {
             return [
                 'ok' => false,

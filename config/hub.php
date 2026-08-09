@@ -58,6 +58,7 @@ return [
         'title' => env('MCA_HUB_UI_TITLE'),
         'assets' => [
             'css' => 'vendor/mca-hub/mca-hub.css',
+            'js' => 'vendor/mca-hub/mca-hub.js',
             'ui_css' => 'vendor/mca-permission/mca-ui.css',
             'ui_js' => 'vendor/mca-permission/mca-ui.js',
         ],
@@ -107,6 +108,7 @@ return [
         'prefer_stable' => env('MCA_HUB_LIFECYCLE_PREFER_STABLE', true),
         // Branch constraint for Hub installs (packages are not on Packagist yet).
         'default_constraint' => env('MCA_HUB_LIFECYCLE_CONSTRAINT', 'dev-main'),
+        'default_branch' => env('MCA_HUB_LIFECYCLE_BRANCH', 'main'),
         'protected' => array_values(array_filter(array_map(
             'trim',
             explode(',', (string) env('MCA_HUB_PROTECTED_PACKAGES', 'mca/hub,mca/permission'))

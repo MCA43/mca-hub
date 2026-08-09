@@ -59,8 +59,10 @@ final class PackageRemover
 
         $managed = $this->repos->managed();
         if (isset($managed[$composerName])) {
-            $this->repos->removeVcsRepository($managed[$composerName]);
+            $this->repos->removeManagedRepository($composerName, $managed[$composerName]);
             $this->repos->forget($composerName);
+        } else {
+            $this->repos->removeManagedRepository($composerName);
         }
 
         return [

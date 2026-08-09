@@ -26,6 +26,8 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 - Hub composer installs force HTTPS (`github-protocols`), inject Git into PATH, use `dev-main`, and map cryptic “to run correctly” errors
 - Hub Composer uses `storage/app/mca-hub-tmp` via `php -d sys_temp_dir=...` (fixes C:\\Windows temp under Laragon/Apache)
 - Resolve real PHP CLI for Composer (ignore nginx/apache `PHP_BINARY` under web SAPI)
+- Hub installs via GitHub branch zip (`type: package`) — no git clone / SSH
+- Full-page busy overlay after confirm for install/update/remove/refresh
 ## [0.2.0] - 2026-08-09
 
 ### Added

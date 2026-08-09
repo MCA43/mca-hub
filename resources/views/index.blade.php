@@ -31,7 +31,7 @@
             <div class="mca-hub-meta">
                 <span class="mca-ui-badge mca-hub-badge mca-hub-badge--framework">{{ mca_hub('meta.framework') }}: {{ $frameworkLabel }}</span>
                 @if($updatesEnabled ?? false)
-                    <form method="post" action="{{ route('mca.hub.updates.refresh') }}" class="mca-hub-inline-form">
+                    <form method="post" action="{{ route('mca.hub.updates.refresh') }}" class="mca-hub-inline-form" data-mca-busy="{{ mca_hub('lifecycle.busy_refresh') }}">
                         @csrf
                         <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--ghost mca-hub-btn--sm">{{ mca_hub('updates.refresh') }}</button>
                     </form>
@@ -72,7 +72,8 @@
                           data-mca-confirm="{{ mca_hub('updates.confirm', ['package' => $hubPackage['name'], 'version' => $hubPackage['latest_version'] ?? '']) }}"
                           data-mca-confirm-title="{{ mca_hub('lifecycle.confirm_title') }}"
                           data-mca-confirm-text="{{ mca_hub('updates.update_hub') }}"
-                          data-mca-confirm-danger="0">
+                          data-mca-confirm-danger="0"
+                          data-mca-busy="{{ mca_hub('lifecycle.busy_update', ['package' => $hubPackage['name']]) }}">
                         @csrf
                         <input type="hidden" name="package" value="{{ $hubPackage['name'] }}">
                         <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--update">{{ mca_hub('updates.update_hub') }}</button>
@@ -126,6 +127,14 @@
         @endif
     </main>
 
+    <div id="mca-hub-busy" class="mca-hub-busy" hidden aria-hidden="true" role="alertdialog" aria-live="assertive" aria-busy="true">
+        <div class="mca-hub-busy__panel">
+            <div class="mca-hub-busy__spinner" aria-hidden="true"></div>
+            <p class="mca-hub-busy__title">{{ mca_hub('lifecycle.busy') }}</p>
+            <p class="mca-hub-busy__msg" data-mca-hub-busy-msg>{{ mca_hub('lifecycle.busy') }}</p>
+        </div>
+    </div>
+
     @php
         $mcaUiI18n = [
             'ok' => mca_hub('modal.ok'),
@@ -135,10 +144,17 @@
             'alert_title' => mca_hub('modal.alert_title'),
             'confirm_title' => mca_hub('modal.confirm_title'),
         ];
+        $mcaHubI18n = [
+            'busy' => mca_hub('lifecycle.busy'),
+        ];
+        $hubJs = config('hub.ui.assets.js', 'vendor/mca-hub/mca-hub.js');
     @endphp
-    <script>window.McaUiI18n = @json($mcaUiI18n);</script>
+    <script>window.McaUiI18n = @json($mcaUiI18n); window.McaHubI18n = @json($mcaHubI18n);</script>
     @if(file_exists(public_path($uiJs)))
         <script src="{{ asset($uiJs) }}" defer></script>
+    @endif
+    @if(file_exists(public_path($hubJs)))
+        <script src="{{ asset($hubJs) }}" defer></script>
     @endif
 </body>
 </html>

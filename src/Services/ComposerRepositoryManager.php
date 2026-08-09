@@ -5,11 +5,15 @@ namespace Mca\Hub\Services;
 use Illuminate\Support\Facades\File;
 
 /**
- * Manages VCS repositories that Hub adds for GitHub installs.
- * Path repositories are never modified.
+ * Manages Hub-added Composer repositories for GitHub installs.
+ * Prefers HTTPS zip "package" repos (no git). Path repositories are never modified.
  */
 final class ComposerRepositoryManager
 {
+    public function __construct(
+        private readonly GitHubPackageProbe $githubProbe,
+    ) {}
+
     public function managedStorePath(): string
     {
         return storage_path('app/mca-hub-managed-repos.json');
@@ -58,13 +62,18 @@ final class ComposerRepositoryManager
     }
 
     /**
-     * Ensure a VCS repository exists in composer.json for the given GitHub URL.
+     * Register a git-free Composer package repository using GitHub branch zip.
      *
      * @return array{ok: bool, message?: string}
      */
-    public function ensureVcsRepository(string $gitUrl): array
+    public function ensureGithubDistRepository(string $composerName, string $gitUrl): array
     {
         if (! $this->isAllowedGithubUrl($gitUrl)) {
+            return ['ok' => false, 'message' => mca_hub('lifecycle.invalid_repo')];
+        }
+
+        $parsed = $this->parseGithubRepo($gitUrl);
+        if ($parsed === null) {
             return ['ok' => false, 'message' => mca_hub('lifecycle.invalid_repo')];
         }
 
@@ -80,47 +89,95 @@ final class ComposerRepositoryManager
             return ['ok' => false, 'message' => mca_hub('lifecycle.composer_invalid')];
         }
 
+        $branch = (string) config('hub.lifecycle.default_branch', 'main');
+        $meta = $this->githubProbe->fetchComposerJson($parsed['owner'], $parsed['repo'], $branch);
+        if ($meta === null) {
+            return ['ok' => false, 'message' => mca_hub('lifecycle.github_no_composer')];
+        }
+
+        $remoteName = (string) ($meta['name'] ?? '');
+        if ($remoteName !== '' && $remoteName !== $composerName) {
+            return ['ok' => false, 'message' => mca_hub('lifecycle.composer_name_mismatch', [
+                'expected' => $composerName,
+                'actual' => $remoteName,
+            ])];
+        }
+
+        $constraint = (string) config('hub.lifecycle.default_constraint', 'dev-main');
+        $version = $constraint !== '' ? $constraint : 'dev-main';
+        $zipUrl = sprintf(
+            'https://codeload.github.com/%s/%s/zip/refs/heads/%s',
+            rawurlencode($parsed['owner']),
+            rawurlencode($parsed['repo']),
+            rawurlencode($branch)
+        );
+
+        $package = $meta;
+        $package['name'] = $composerName;
+        $package['version'] = $version;
+        $package['dist'] = [
+            'type' => 'zip',
+            'url' => $zipUrl,
+            'reference' => $branch,
+        ];
+        unset($package['source']);
+
         $repos = $data['repositories'] ?? [];
         if (! is_array($repos)) {
             $repos = [];
         }
 
         $normalized = $this->normalizeGitUrl($gitUrl);
-        foreach ($repos as $index => $repo) {
+        $filtered = [];
+        foreach ($repos as $repo) {
             if (! is_array($repo)) {
+                $filtered[] = $repo;
                 continue;
             }
-            $existing = $this->normalizeGitUrl((string) ($repo['url'] ?? ''));
-            if ($existing !== '' && $existing === $normalized) {
-                if (($repo['type'] ?? '') === 'vcs' && ($repo['no-api'] ?? false) !== true) {
-                    $repos[$index]['no-api'] = true;
-                    $data['repositories'] = array_values($repos);
 
-                    return $this->writeComposerJson($composerPath, $data);
-                }
-
-                return ['ok' => true];
+            $type = (string) ($repo['type'] ?? '');
+            if ($type === 'vcs' && $this->normalizeGitUrl((string) ($repo['url'] ?? '')) === $normalized) {
+                continue;
             }
+            if ($type === 'package' && (string) (($repo['package']['name'] ?? '')) === $composerName) {
+                continue;
+            }
+
+            $filtered[] = $repo;
         }
 
-        array_unshift($repos, [
-            'type' => 'vcs',
-            'url' => $normalized,
-            // Avoid GitHub API rate-limit (403) which makes Composer fall back to SSH.
-            'no-api' => true,
+        array_unshift($filtered, [
+            'type' => 'package',
+            'package' => $package,
         ]);
 
-        $data['repositories'] = array_values($repos);
+        $data['repositories'] = array_values($filtered);
 
         return $this->writeComposerJson($composerPath, $data);
     }
 
     /**
-     * Remove a Hub-managed VCS repository URL from composer.json.
+     * @deprecated Prefer ensureGithubDistRepository()
      *
      * @return array{ok: bool, message?: string}
      */
-    public function removeVcsRepository(string $gitUrl): array
+    public function ensureVcsRepository(string $gitUrl): array
+    {
+        if (preg_match('#github\.com/([^/]+)/(mca-[a-z0-9-]+)#i', $gitUrl, $m) === 1) {
+            $name = 'mca/'.substr($m[2], strlen((string) config('hub.github.repo_prefix', 'mca-')));
+
+            return $this->ensureGithubDistRepository($name, $gitUrl);
+        }
+
+        return ['ok' => false, 'message' => mca_hub('lifecycle.invalid_repo')];
+    }
+
+    /**
+     * Remove Hub-managed repository entries for a package.
+     *
+     * @return array{ok: bool, message?: string}
+     */
+    public function removeManagedRepository(string $composerName, ?string $gitUrl = null): array
     {
         $composerPath = base_path('composer.json');
         if (! is_file($composerPath) || ! is_writable($composerPath)) {
@@ -139,24 +196,43 @@ final class ComposerRepositoryManager
             return ['ok' => true];
         }
 
-        $normalized = $this->normalizeGitUrl($gitUrl);
+        $normalized = is_string($gitUrl) ? $this->normalizeGitUrl($gitUrl) : null;
         $filtered = [];
         foreach ($repos as $repo) {
             if (! is_array($repo)) {
                 $filtered[] = $repo;
                 continue;
             }
+
             $type = (string) ($repo['type'] ?? '');
-            $existing = $this->normalizeGitUrl((string) ($repo['url'] ?? ''));
-            if ($type === 'vcs' && $existing === $normalized) {
+            if ($type === 'package' && (string) (($repo['package']['name'] ?? '')) === $composerName) {
                 continue;
             }
+            if ($normalized !== null && $type === 'vcs' && $this->normalizeGitUrl((string) ($repo['url'] ?? '')) === $normalized) {
+                continue;
+            }
+
             $filtered[] = $repo;
         }
 
         $data['repositories'] = array_values($filtered);
 
         return $this->writeComposerJson($composerPath, $data);
+    }
+
+    /**
+     * @return array{ok: bool, message?: string}
+     */
+    public function removeVcsRepository(string $gitUrl): array
+    {
+        $name = null;
+        if (preg_match('#/(mca-[a-z0-9-]+)(?:\.git)?$#i', $this->normalizeGitUrl($gitUrl), $m) === 1) {
+            $prefix = (string) config('hub.github.repo_prefix', 'mca-');
+            $slug = str_starts_with($m[1], $prefix) ? substr($m[1], strlen($prefix)) : $m[1];
+            $name = 'mca/'.$slug;
+        }
+
+        return $this->removeManagedRepository((string) $name, $gitUrl);
     }
 
     public function isAllowedGithubUrl(string $url): bool
@@ -198,6 +274,19 @@ final class ComposerRepositoryManager
         $prefix = (string) config('hub.github.repo_prefix', 'mca-');
 
         return 'https://github.com/'.$org.'/'.$prefix.$m[1];
+    }
+
+    /** @return array{owner: string, repo: string}|null */
+    private function parseGithubRepo(string $url): ?array
+    {
+        if (preg_match('~github\.com[/:]([^/]+)/([^/\#\?]+)~i', $url, $m) !== 1) {
+            return null;
+        }
+
+        return [
+            'owner' => $m[1],
+            'repo' => preg_replace('/\.git$/i', '', $m[2]) ?? $m[2],
+        ];
     }
 
     /** @param  array<string, string>  $all */
