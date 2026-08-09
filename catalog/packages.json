@@ -227,8 +227,8 @@
                 "tr": "Ödemeler"
             },
             "description": {
-                "en": "iyzico and PayTR — one active payment driver (more coming).",
-                "tr": "iyzico ve PayTR — tek aktif ödeme sürücüsü (diğerleri gelecek)."
+                "en": "iyzico, PayTR, and bank transfer — one active payment driver.",
+                "tr": "iyzico, PayTR ve havale/EFT — tek aktif ödeme sürücüsü."
             },
             "frameworks": ["laravel13"],
             "github": "https://github.com/MCA43/mca-payments",

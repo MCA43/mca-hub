@@ -14,4 +14,8 @@ Route::prefix($prefix)
         Route::get('/', [HubController::class, 'index'])->name('index');
         Route::post('/updates/refresh', [HubController::class, 'refreshUpdates'])->name('updates.refresh');
         Route::post('/updates', [HubController::class, 'update'])->name('updates.run');
+        Route::post('/packages/install', [HubController::class, 'install'])->name('packages.install');
+        Route::post('/packages/remove', [HubController::class, 'remove'])->name('packages.remove');
+        // Alias for WordPress-style naming
+        Route::post('/packages/update', [HubController::class, 'update'])->name('packages.update');
     });

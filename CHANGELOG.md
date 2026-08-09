@@ -5,9 +5,25 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 ## [Unreleased]
 
 ### Added
+- WordPress-style lifecycle: install / update / remove from Hub UI (root only)
+- Sections: Installed / Available / Planned
+- `mca-ui` confirmation modals for install, update, remove
+- Allowlisted GitHub VCS `composer require` + managed repo tracking
+- Protected packages (`mca/hub`, `mca/permission`) cannot be removed
+- Path/symlink packages blocked for install/update/remove
+- Config: `hub.lifecycle.*` / `MCA_HUB_LIFECYCLE*`
+- Routes: `mca.hub.packages.install`, `mca.hub.packages.remove`, `mca.hub.packages.update`
+
+### Changed
+- Hub cards split into installed vs available sections
+- Package update confirm uses mca-ui modal instead of `window.confirm`
+
+## [0.2.0] - 2026-08-09
+
+### Added
 - GitHub release/tag update checks for installed MCA packages
 - Card badges: update available / local path / up to date
-- Allowlisted `composer update` via Hub UI (root only) + confirm dialog
+- Allowlisted `composer update` via Hub UI (root only)
 - Hub self-update banner (mca/hub shown when updates enabled)
 - `mca:hub:check-updates` artisan command
 - Config: `hub.updates.*` / `MCA_HUB_UPDATES*`
@@ -30,9 +46,5 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 - Composer `extra.mca` otomatik keşif (`InstalledVersions`)
 - `mca_hub_register()` runtime kayıt
 - `mca.hub.access` middleware — `mca/permission` root kontrolü veya `role_id` / slug yedek
-- `mca-ui` ile uyumlu hub CSS (permission asset varsa paylaşımlı tasarım)
+- `mca-ui` ile uyumlu hub CSS
 - İngilizce ve Türkçe çeviriler
-
-### Changed
-- Varsayılan erişim kolonu `role_id`; permission yokken `roles.is_root` kontrolü
-- Katalog GitHub URL'leri `MCA43` organizasyonu ile hizalandı

@@ -2,18 +2,17 @@
 
 **Türkçe** | [English](README.md)
 
-Laravel için MCA paket paneli: `/mca` altında framework uyumlu kartlar, kurulum tespiti ve isteğe bağlı uzak katalog.
+Laravel için MCA paket paneli (WordPress eklenti ekranı benzeri): GitHub `mca-*` paketlerini listeler; root kullanıcı onay modalıyla güvenli kur / güncelle / kaldır.
 
 ## Özellikler
 
-- **Kurulum tespiti** — `composer.lock` / `InstalledVersions`
-- **Uzak katalog** — GitHub `packages.json` (önbellekli)
-- **GitHub keşif** — `mca-*` repoları otomatik listelenir (`extra.mca` okunur)
-- **Framework filtresi** — Laravel 11/12/13 otomatik algılama
-- **Composer `extra.mca`** — paketler kendini tanımlar
-- **Root erişim** — `mca/permission` yüklüyse `isRoot()` kullanır
-- **Paket güncelleme** — GitHub tag/release kontrolü + onaylı `composer update` (path paketlerde uyarı)
-- **Ortak UI** — `mca/permission` asset'leri varsa `mca-ui.css` paylaşır
+- **Kurulu / kurulabilir / planlanan** bölümleri
+- **GitHub keşif** — `mca-*` repoları otomatik listelenir
+- **Kur** — allowlist’li VCS + `composer require` (onay modalı)
+- **Güncelle** — GitHub tag/release + `composer update` (path’te kapalı)
+- **Kaldır** — `composer remove` (korumalı ve path paketler hariç)
+- **Root erişim** — `mca/permission` `isRoot()` veya yedek rol kontrolü
+- **Ortak UI** — `mca-ui.css` / `mca-ui.js` onay modalları
 - **Çoklu dil** — `tr` / `en`
 
 ## Kurulum
@@ -21,81 +20,46 @@ Laravel için MCA paket paneli: `/mca` altında framework uyumlu kartlar, kurulu
 ```bash
 composer require mca/hub
 php artisan vendor:publish --tag=mca-hub-assets --force
-```
-
-İzin paketi ile birlikte:
-
-```bash
-composer require mca/permission mca/hub
-php artisan mca:permission:install
 php artisan vendor:publish --tag=mca-permission-assets --force
-php artisan vendor:publish --tag=mca-hub-assets --force
 ```
 
-Root kullanıcı ile `/mca` adresine gidin.
+Root ile `/mca` adresine gidin.
 
 ## Yapılandırma
 
 ```env
 MCA_HUB_ENABLED=true
-MCA_HUB_CATALOG_URL=https://raw.githubusercontent.com/MCA43/mca-catalog/main/packages.json
 MCA_HUB_GITHUB_CATALOG=true
 MCA_HUB_GITHUB_ORG=MCA43
-MCA_HUB_GITHUB_ACCOUNT_TYPE=auto
-MCA_HUB_GITHUB_REPO_PREFIX=mca-
-MCA_HUB_USE_PERMISSION_ROOT=true
-MCA_HUB_ROLE_COLUMN=role_id
 MCA_HUB_UPDATES=true
 MCA_HUB_ALLOW_PATH_UPDATE=false
+MCA_HUB_LIFECYCLE=true
+MCA_HUB_PROTECTED_PACKAGES=mca/hub,mca/permission
 ```
 
 | Anahtar | Açıklama |
 |---------|----------|
-| `catalog.url` | Uzak `packages.json` (opsiyonel) |
-| `github.enabled` | GitHub'dan `mca-*` repolarını çek |
-| `github.org` | GitHub kullanıcı veya organizasyon adı |
-| `github.account_type` | `auto` (önce org, sonra user), `org` veya `user` |
-| `github.repo_prefix` | Repo adı öneki (varsayılan `mca-`) |
-| `github.token` | Rate limit için opsiyonel PAT |
-| `access.use_permission_root` | Root kontrolünü permission'a devret |
-| `access.role_column` | Permission yokken yedek (`role_id` önerilir) |
-| `updates.enabled` | GitHub sürüm kontrolü + Güncelle butonu |
-| `updates.allow_path_update` | Path/symlink paketlerde composer update’e izin (varsayılan kapalı) |
+| `lifecycle.enabled` | Hub’dan kur / kaldır |
+| `lifecycle.protected` | Kaldırılamayan paketler |
+| `updates.allow_path_update` | Path paketlerde composer update (varsayılan kapalı) |
+| `github.org` / `repo_prefix` | VCS URL allowlist (`github.com/{org}/mca-*`) |
 
-Uzak URL yoksa paket içi `catalog/packages.json` kullanılır. GitHub keşif açıksa `mca-hub`, `mca-permission` gibi repolar kataloga eklenir; yerel/uzak kayıtlar önceliklidir.
+### Path monorepo (Laragon `packages/mca/*`)
+
+Yerel path/symlink paketler **Yerel bağlı** görünür; Hub üzerinden kur/güncelle/kaldır **engellenir**. Geliştirme için kaynak kodu güncelleyin. Üretimde VCS/dist kurulumda lifecycle butonları aktif olur.
 
 ```bash
 php artisan mca:hub:check-updates --fresh
 ```
 
+## Güvenlik
+
+- Yalnızca **root**
+- Paket adı: `mca/[a-z0-9-]+`
+- Kurulum yalnızca katalogdaki paket + izinli GitHub org
+- `mca/hub` ve `mca/permission` kaldırılamaz
+- Her işlemde **onay modalı**
+
 ## Paket kaydı
 
-`composer.json` → `extra.mca`:
-
-```json
-{
-  "slug": "permission",
-  "title": { "en": "Permissions", "tr": "İzinler" },
-  "route": "mca.permission.index",
-  "github": "https://github.com/MCA43/mca-permission",
-  "frameworks": ["laravel13"]
-}
-```
-
-## Publish
-
-```bash
-php artisan vendor:publish --tag=mca-hub-config
-php artisan vendor:publish --tag=mca-hub-assets --force
-php artisan vendor:publish --tag=mca-hub-catalog
-```
-
-## GitHub
-
-Depo: [github.com/MCA43/mca-hub](https://github.com/MCA43/mca-hub)
-
-Sürüm notları: [CHANGELOG.md](CHANGELOG.md)
-
-## Lisans
-
-[MIT](LICENSE)
+`composer.json` → `extra.mca` ile title, route, github, icon tanımlanır.

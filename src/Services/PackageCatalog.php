@@ -12,6 +12,7 @@ final class PackageCatalog
         private readonly InstalledPackageResolver $installed,
         private readonly GitHubOrgCatalog $githubCatalog,
         private readonly UpdateChecker $updateChecker,
+        private readonly PackageLifecycle $lifecycle,
     ) {}
 
     /**
@@ -72,10 +73,34 @@ final class PackageCatalog
         usort($items, fn (array $a, array $b) => ($a['order'] ?? 100) <=> ($b['order'] ?? 100));
 
         if (config('hub.updates.enabled', true)) {
-            return $this->updateChecker->enrich($items);
+            $items = $this->updateChecker->enrich($items);
         }
 
-        return $items;
+        return $this->lifecycle->enrich($items);
+    }
+
+    /**
+     * Raw catalog entry by Composer package name (framework-agnostic).
+     *
+     * @return array<string, mixed>|null
+     */
+    public function findByName(string $composerName): ?array
+    {
+        if ($composerName === '') {
+            return null;
+        }
+
+        $catalog = $this->loadCatalog();
+        foreach ($catalog['packages'] ?? [] as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+            if ((string) ($entry['name'] ?? '') === $composerName) {
+                return $entry;
+            }
+        }
+
+        return null;
     }
 
     /** @param  array<string, mixed>  $entry */

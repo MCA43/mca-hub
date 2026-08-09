@@ -6,10 +6,15 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Mca\Hub\Console\CheckUpdatesCommand;
 use Mca\Hub\Http\Middleware\EnsureHubAccess;
+use Mca\Hub\Services\ComposerProcess;
+use Mca\Hub\Services\ComposerRepositoryManager;
 use Mca\Hub\Services\GitHubOrgCatalog;
 use Mca\Hub\Services\HubRegistry;
 use Mca\Hub\Services\InstalledPackageResolver;
 use Mca\Hub\Services\PackageCatalog;
+use Mca\Hub\Services\PackageInstaller;
+use Mca\Hub\Services\PackageLifecycle;
+use Mca\Hub\Services\PackageRemover;
 use Mca\Hub\Services\PackageUpdater;
 use Mca\Hub\Services\UpdateChecker;
 
@@ -22,9 +27,14 @@ class HubServiceProvider extends ServiceProvider
         $this->app->singleton(HubRegistry::class);
         $this->app->singleton(InstalledPackageResolver::class);
         $this->app->singleton(GitHubOrgCatalog::class);
+        $this->app->singleton(ComposerProcess::class);
+        $this->app->singleton(ComposerRepositoryManager::class);
+        $this->app->singleton(PackageLifecycle::class);
         $this->app->singleton(UpdateChecker::class);
         $this->app->singleton(PackageUpdater::class);
         $this->app->singleton(PackageCatalog::class);
+        $this->app->singleton(PackageInstaller::class);
+        $this->app->singleton(PackageRemover::class);
     }
 
     public function boot(): void

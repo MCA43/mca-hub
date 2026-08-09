@@ -58,6 +58,8 @@ return [
         'title' => env('MCA_HUB_UI_TITLE'),
         'assets' => [
             'css' => 'vendor/mca-hub/mca-hub.css',
+            'ui_css' => 'vendor/mca-permission/mca-ui.css',
+            'ui_js' => 'vendor/mca-permission/mca-ui.js',
         ],
     ],
 
@@ -89,6 +91,22 @@ return [
         'dev_shows_update' => env('MCA_HUB_DEV_SHOWS_UPDATE', true),
         // Always list mca/hub on the dashboard (for self-update)
         'show_hub' => env('MCA_HUB_SHOW_HUB_CARD', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lifecycle — install / remove via Hub (root only, confirm modal)
+    |--------------------------------------------------------------------------
+    | Path/symlink packages cannot be installed or removed from the UI.
+    | Protected packages cannot be removed.
+    */
+    'lifecycle' => [
+        'enabled' => env('MCA_HUB_LIFECYCLE', true),
+        'prefer_stable' => env('MCA_HUB_LIFECYCLE_PREFER_STABLE', true),
+        'protected' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('MCA_HUB_PROTECTED_PACKAGES', 'mca/hub,mca/permission'))
+        ))),
     ],
 
 ];

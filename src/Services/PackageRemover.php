@@ -2,53 +2,54 @@
 
 namespace Mca\Hub\Services;
 
-final class PackageUpdater
+final class PackageRemover
 {
     public function __construct(
         private readonly InstalledPackageResolver $installed,
-        private readonly UpdateChecker $checker,
+        private readonly PackageLifecycle $lifecycle,
+        private readonly ComposerRepositoryManager $repos,
         private readonly ComposerProcess $composer,
+        private readonly UpdateChecker $checker,
     ) {}
 
     /**
      * @return array{ok: bool, message: string, output: string}
      */
-    public function update(string $composerName): array
+    public function remove(string $composerName): array
     {
-        if (! config('hub.updates.enabled', true)) {
-            return $this->fail('updates.disabled');
+        if (! $this->lifecycle->enabled()) {
+            return $this->fail('lifecycle.disabled');
         }
 
-        if (! $this->isAllowedPackage($composerName)) {
+        if (! $this->lifecycle->isValidPackageName($composerName)) {
             return $this->fail('updates.invalid_package');
+        }
+
+        if ($this->lifecycle->isProtected($composerName)) {
+            return $this->fail('lifecycle.protected');
         }
 
         if (! $this->installed->isInstalled($composerName)) {
             return $this->fail('updates.not_installed');
         }
 
-        if ($this->installed->isPathInstall($composerName) && ! config('hub.updates.allow_path_update', false)) {
-            return $this->fail('updates.path_blocked');
+        if ($this->installed->isPathInstall($composerName)) {
+            return $this->fail('lifecycle.path_blocked_remove');
         }
 
-        $args = [
-            'update',
+        $result = $this->composer->run([
+            'remove',
             $composerName,
             '--no-interaction',
             '--with-all-dependencies',
-        ];
+        ]);
 
-        if (config('hub.updates.prefer_stable', true)) {
-            $args[] = '--prefer-stable';
-        }
-
-        $result = $this->composer->run($args);
         $this->checker->forget($composerName);
 
         if (! $result['ok']) {
             return [
                 'ok' => false,
-                'message' => mca_hub('updates.failed', [
+                'message' => mca_hub('lifecycle.remove_failed', [
                     'package' => $composerName,
                     'error' => $this->composer->shortError($result['output']),
                 ]),
@@ -56,20 +57,17 @@ final class PackageUpdater
             ];
         }
 
-        return [
-            'ok' => true,
-            'message' => mca_hub('updates.success', ['package' => $composerName]),
-            'output' => $result['output'],
-        ];
-    }
-
-    private function isAllowedPackage(string $name): bool
-    {
-        if (preg_match('#^mca/[a-z0-9-]+$#', $name) !== 1) {
-            return false;
+        $managed = $this->repos->managed();
+        if (isset($managed[$composerName])) {
+            $this->repos->removeVcsRepository($managed[$composerName]);
+            $this->repos->forget($composerName);
         }
 
-        return in_array($name, $this->installed->installedMcaPackages(), true);
+        return [
+            'ok' => true,
+            'message' => mca_hub('lifecycle.remove_success', ['package' => $composerName]),
+            'output' => $result['output'],
+        ];
     }
 
     /** @return array{ok: bool, message: string, output: string} */
