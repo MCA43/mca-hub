@@ -4,11 +4,14 @@ namespace Mca\Hub;
 
 use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
+use Mca\Hub\Console\CheckUpdatesCommand;
 use Mca\Hub\Http\Middleware\EnsureHubAccess;
 use Mca\Hub\Services\GitHubOrgCatalog;
 use Mca\Hub\Services\HubRegistry;
 use Mca\Hub\Services\InstalledPackageResolver;
 use Mca\Hub\Services\PackageCatalog;
+use Mca\Hub\Services\PackageUpdater;
+use Mca\Hub\Services\UpdateChecker;
 
 class HubServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,8 @@ class HubServiceProvider extends ServiceProvider
         $this->app->singleton(HubRegistry::class);
         $this->app->singleton(InstalledPackageResolver::class);
         $this->app->singleton(GitHubOrgCatalog::class);
+        $this->app->singleton(UpdateChecker::class);
+        $this->app->singleton(PackageUpdater::class);
         $this->app->singleton(PackageCatalog::class);
     }
 
@@ -34,6 +39,12 @@ class HubServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'mca-hub');
         $this->registerRoutes();
         $this->discoverComposerPackages();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CheckUpdatesCommand::class,
+            ]);
+        }
     }
 
     protected function registerPublishing(): void

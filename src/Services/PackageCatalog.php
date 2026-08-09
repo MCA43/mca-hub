@@ -11,6 +11,7 @@ final class PackageCatalog
     public function __construct(
         private readonly InstalledPackageResolver $installed,
         private readonly GitHubOrgCatalog $githubCatalog,
+        private readonly UpdateChecker $updateChecker,
     ) {}
 
     /**
@@ -34,7 +35,7 @@ final class PackageCatalog
                 continue;
             }
 
-            if (($entry['hidden'] ?? false) === true) {
+            if (($entry['hidden'] ?? false) === true && ! $this->shouldShowHidden($entry)) {
                 continue;
             }
 
@@ -46,7 +47,7 @@ final class PackageCatalog
         }
 
         foreach ($registered as $slug => $reg) {
-            if ($reg['hidden'] ?? false) {
+            if (($reg['hidden'] ?? false) && ! $this->shouldShowHidden($reg)) {
                 continue;
             }
 
@@ -70,7 +71,24 @@ final class PackageCatalog
 
         usort($items, fn (array $a, array $b) => ($a['order'] ?? 100) <=> ($b['order'] ?? 100));
 
+        if (config('hub.updates.enabled', true)) {
+            return $this->updateChecker->enrich($items);
+        }
+
         return $items;
+    }
+
+    /** @param  array<string, mixed>  $entry */
+    private function shouldShowHidden(array $entry): bool
+    {
+        if (! config('hub.updates.show_hub', true)) {
+            return false;
+        }
+
+        $slug = (string) ($entry['slug'] ?? '');
+        $name = (string) ($entry['name'] ?? '');
+
+        return $slug === 'hub' || $name === 'mca/hub';
     }
 
     /** @return array{updated_at: ?string, packages: list<array<string, mixed>>} */
@@ -214,6 +232,7 @@ final class PackageCatalog
             'version' => $version,
             'status' => $cardStatus,
             'route_exists' => is_string($route) && $route !== '' ? app('router')->has($route) : false,
+            'is_hub' => $slug === 'hub' || $name === 'mca/hub',
         ];
     }
 

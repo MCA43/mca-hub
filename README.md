@@ -12,6 +12,7 @@ MCA package hub for Laravel: `/mca` dashboard with framework-aware package cards
 - **Framework filter** — auto-detects Laravel 11/12/13; only lists compatible packages
 - **Composer `extra.mca`** — packages self-describe for the hub
 - **Root access** — uses `mca/permission` `PermissionService::isRoot()` when available
+- **Package updates** — GitHub tag/release checks + confirmed allowlisted `composer update`
 - **Shared UI** — loads `mca-ui.css` from `mca/permission` when published
 - **i18n** — English and Turkish
 
@@ -44,18 +45,26 @@ MCA_HUB_GITHUB_ACCOUNT_TYPE=auto
 MCA_HUB_GITHUB_REPO_PREFIX=mca-
 MCA_HUB_USE_PERMISSION_ROOT=true
 MCA_HUB_ROLE_COLUMN=role_id
+MCA_HUB_UPDATES=true
+MCA_HUB_ALLOW_PATH_UPDATE=false
 ```
 
 | Key | Description |
 |-----|-------------|
-| `catalog.url` | Remote `packages.json` URL (optional) |
-| `github.enabled` | Pull `mca-*` repos from GitHub |
-| `github.org` | GitHub user or organization name |
+| `catalog.url` | Remote `packages.json` (optional) |
+| `github.enabled` | Discover `mca-*` repos from GitHub |
+| `github.org` | GitHub user or organization |
 | `github.account_type` | `auto` (org then user), `org`, or `user` |
 | `github.repo_prefix` | Repo name prefix (default `mca-`) |
-| `github.token` | Optional PAT for higher rate limits |
-| `access.use_permission_root` | Delegate root check to `mca/permission` |
-| `access.role_column` | Fallback when permission not installed (`role_id` recommended) |
+| `github.token` | Optional PAT for rate limits |
+| `access.use_permission_root` | Delegate root check to permission |
+| `access.role_column` | Fallback column without permission |
+| `updates.enabled` | GitHub version check + Update button |
+| `updates.allow_path_update` | Allow composer update for path installs (default off) |
+
+```bash
+php artisan mca:hub:check-updates --fresh
+```
 
 ## Remote catalog
 

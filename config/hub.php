@@ -72,4 +72,23 @@ return [
         'root_role' => env('MCA_HUB_ROOT_ROLE', 'root'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Package updates (GitHub release/tag check + allowlisted composer update)
+    |--------------------------------------------------------------------------
+    */
+    'updates' => [
+        'enabled' => env('MCA_HUB_UPDATES', true),
+        'cache_ttl' => (int) env('MCA_HUB_UPDATES_CACHE_TTL', 3600),
+        'composer_bin' => env('MCA_HUB_COMPOSER_BIN', 'composer'),
+        'timeout' => (int) env('MCA_HUB_UPDATE_TIMEOUT', 300),
+        'prefer_stable' => env('MCA_HUB_UPDATE_PREFER_STABLE', true),
+        // Path/symlink monorepo packages: show newer GitHub tags but block composer update by default
+        'allow_path_update' => env('MCA_HUB_ALLOW_PATH_UPDATE', false),
+        // Installed as dev-main / branch alias → treat any GitHub tag as "update available"
+        'dev_shows_update' => env('MCA_HUB_DEV_SHOWS_UPDATE', true),
+        // Always list mca/hub on the dashboard (for self-update)
+        'show_hub' => env('MCA_HUB_SHOW_HUB_CARD', true),
+    ],
+
 ];

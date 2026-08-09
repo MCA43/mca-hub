@@ -12,4 +12,6 @@ Route::prefix($prefix)
     ->name($namePrefix)
     ->group(function () {
         Route::get('/', [HubController::class, 'index'])->name('index');
+        Route::post('/updates/refresh', [HubController::class, 'refreshUpdates'])->name('updates.refresh');
+        Route::post('/updates', [HubController::class, 'update'])->name('updates.run');
     });

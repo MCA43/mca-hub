@@ -130,6 +130,114 @@
             "order": 32
         },
         {
+            "name": "mca/captcha",
+            "slug": "captcha",
+            "title": {
+                "en": "Captcha",
+                "tr": "Captcha"
+            },
+            "description": {
+                "en": "reCAPTCHA, hCaptcha and Turnstile — one active driver.",
+                "tr": "reCAPTCHA, hCaptcha ve Turnstile — tek aktif sürücü."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-captcha",
+            "composer": "composer require mca/captcha",
+            "route": "mca.captcha.index",
+            "icon": "shield",
+            "order": 35
+        },
+        {
+            "name": "mca/smtp",
+            "slug": "smtp",
+            "title": {
+                "en": "Email / SMTP",
+                "tr": "E-posta / SMTP"
+            },
+            "description": {
+                "en": "SMTP panel settings, Laravel mail apply and test email.",
+                "tr": "Panel SMTP ayarları, Laravel mail uygulama ve test e-postası."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-smtp",
+            "composer": "composer require mca/smtp",
+            "route": "mca.smtp.index",
+            "icon": "mail",
+            "order": 25
+        },
+        {
+            "name": "mca/seo",
+            "slug": "seo",
+            "title": {
+                "en": "SEO",
+                "tr": "SEO"
+            },
+            "description": {
+                "en": "Meta/OG, JSON-LD, sitemap, robots, analytics, redirects and page overrides.",
+                "tr": "Meta/OG, JSON-LD, sitemap, robots, analytics, yönlendirme ve sayfa override."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-seo",
+            "composer": "composer require mca/seo",
+            "route": "mca.seo.index",
+            "icon": "search",
+            "order": 28
+        },
+        {
+            "name": "mca/netgsm",
+            "slug": "netgsm",
+            "title": {
+                "en": "NetGSM SMS",
+                "tr": "NetGSM SMS"
+            },
+            "description": {
+                "en": "NetGSM SMS API, panel credentials and test SMS.",
+                "tr": "NetGSM SMS API, panel kimlik bilgileri ve test SMS."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-netgsm",
+            "composer": "composer require mca/netgsm",
+            "route": "mca.netgsm.index",
+            "icon": "message-square",
+            "order": 36
+        },
+        {
+            "name": "mca/vatansms",
+            "slug": "vatansms",
+            "title": {
+                "en": "VatanSMS",
+                "tr": "VatanSMS"
+            },
+            "description": {
+                "en": "VatanSMS XML API, panel credentials and test SMS.",
+                "tr": "VatanSMS XML API, panel kimlik bilgileri ve test SMS."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-vatansms",
+            "composer": "composer require mca/vatansms",
+            "route": "mca.vatansms.index",
+            "icon": "message-square",
+            "order": 37
+        },
+        {
+            "name": "mca/payments",
+            "slug": "payments",
+            "title": {
+                "en": "Payments",
+                "tr": "Ödemeler"
+            },
+            "description": {
+                "en": "iyzico and PayTR — one active payment driver (more coming).",
+                "tr": "iyzico ve PayTR — tek aktif ödeme sürücüsü (diğerleri gelecek)."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-payments",
+            "composer": "composer require mca/payments",
+            "route": "mca.payments.index",
+            "icon": "box",
+            "order": 38
+        },
+        {
             "name": "mca/permission-ci3",
             "slug": "permission-ci3",
             "title": {

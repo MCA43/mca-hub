@@ -12,6 +12,7 @@ Laravel için MCA paket paneli: `/mca` altında framework uyumlu kartlar, kurulu
 - **Framework filtresi** — Laravel 11/12/13 otomatik algılama
 - **Composer `extra.mca`** — paketler kendini tanımlar
 - **Root erişim** — `mca/permission` yüklüyse `isRoot()` kullanır
+- **Paket güncelleme** — GitHub tag/release kontrolü + onaylı `composer update` (path paketlerde uyarı)
 - **Ortak UI** — `mca/permission` asset'leri varsa `mca-ui.css` paylaşır
 - **Çoklu dil** — `tr` / `en`
 
@@ -44,6 +45,8 @@ MCA_HUB_GITHUB_ACCOUNT_TYPE=auto
 MCA_HUB_GITHUB_REPO_PREFIX=mca-
 MCA_HUB_USE_PERMISSION_ROOT=true
 MCA_HUB_ROLE_COLUMN=role_id
+MCA_HUB_UPDATES=true
+MCA_HUB_ALLOW_PATH_UPDATE=false
 ```
 
 | Anahtar | Açıklama |
@@ -56,8 +59,14 @@ MCA_HUB_ROLE_COLUMN=role_id
 | `github.token` | Rate limit için opsiyonel PAT |
 | `access.use_permission_root` | Root kontrolünü permission'a devret |
 | `access.role_column` | Permission yokken yedek (`role_id` önerilir) |
+| `updates.enabled` | GitHub sürüm kontrolü + Güncelle butonu |
+| `updates.allow_path_update` | Path/symlink paketlerde composer update’e izin (varsayılan kapalı) |
 
 Uzak URL yoksa paket içi `catalog/packages.json` kullanılır. GitHub keşif açıksa `mca-hub`, `mca-permission` gibi repolar kataloga eklenir; yerel/uzak kayıtlar önceliklidir.
+
+```bash
+php artisan mca:hub:check-updates --fresh
+```
 
 ## Paket kaydı
 

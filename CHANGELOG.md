@@ -4,6 +4,17 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 
 ## [Unreleased]
 
+### Added
+- GitHub release/tag update checks for installed MCA packages
+- Card badges: update available / local path / up to date
+- Allowlisted `composer update` via Hub UI (root only) + confirm dialog
+- Hub self-update banner (mca/hub shown when updates enabled)
+- `mca:hub:check-updates` artisan command
+- Config: `hub.updates.*` / `MCA_HUB_UPDATES*`
+
+### Fixed
+- Hub package cards render SVG icons instead of empty colored placeholders
+
 ## [0.1.1] - 2026-06-28
 
 ### Added
