@@ -53,9 +53,81 @@
             "frameworks": ["laravel13"],
             "github": "https://github.com/MCA43/mca-settings",
             "composer": "composer require mca/settings",
+            "route": "mca.settings.index",
             "icon": "cog",
-            "order": 20,
-            "status": "planned"
+            "order": 20
+        },
+        {
+            "name": "mca/address",
+            "slug": "address",
+            "title": {
+                "en": "Address",
+                "tr": "Adres"
+            },
+            "description": {
+                "en": "Countries, cities, districts, neighborhoods — CRUD and API.",
+                "tr": "Ülke, şehir, ilçe, mahalle — CRUD ve API."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-address",
+            "composer": "composer require mca/address",
+            "route": "mca.address.countries.index",
+            "icon": "map-pin",
+            "order": 40
+        },
+        {
+            "name": "mca/firewall",
+            "slug": "firewall",
+            "title": {
+                "en": "Firewall",
+                "tr": "Güvenlik Duvarı"
+            },
+            "description": {
+                "en": "IP whitelist/blacklist, CIDR rules, trash and request middleware (Access suite core).",
+                "tr": "IP white/black list, CIDR kuralları, çöp kutusu ve istek middleware’i (Access suite çekirdeği)."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-firewall",
+            "composer": "composer require mca/firewall",
+            "route": "mca.firewall.index",
+            "icon": "shield",
+            "order": 30
+        },
+        {
+            "name": "mca/access-log",
+            "slug": "access-log",
+            "title": {
+                "en": "Access Log",
+                "tr": "Erişim Günlüğü"
+            },
+            "description": {
+                "en": "HTTP request logging by IP with filters, retention and firewall actions.",
+                "tr": "IP bazlı HTTP istek günlüğü, filtreler, saklama süresi ve firewall aksiyonları."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-access-log",
+            "composer": "composer require mca/access-log",
+            "route": "mca.access-log.index",
+            "icon": "list",
+            "order": 31
+        },
+        {
+            "name": "mca/access-intel",
+            "slug": "access-intel",
+            "title": {
+                "en": "Access Intel",
+                "tr": "Erişim Analizi"
+            },
+            "description": {
+                "en": "IP health scores from access logs — healthy vs risky traffic.",
+                "tr": "Erişim günlüğünden IP sağlık skorları — sağlıklı / riskli trafik."
+            },
+            "frameworks": ["laravel13"],
+            "github": "https://github.com/MCA43/mca-access-intel",
+            "composer": "composer require mca/access-intel",
+            "route": "mca.access-intel.index",
+            "icon": "activity",
+            "order": 32
         },
         {
             "name": "mca/permission-ci3",
