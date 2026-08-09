@@ -103,6 +103,8 @@ return [
     'lifecycle' => [
         'enabled' => env('MCA_HUB_LIFECYCLE', true),
         'prefer_stable' => env('MCA_HUB_LIFECYCLE_PREFER_STABLE', true),
+        // Branch constraint for Hub installs (packages are not on Packagist yet).
+        'default_constraint' => env('MCA_HUB_LIFECYCLE_CONSTRAINT', 'dev-main'),
         'protected' => array_values(array_filter(array_map(
             'trim',
             explode(',', (string) env('MCA_HUB_PROTECTED_PACKAGES', 'mca/hub,mca/permission'))

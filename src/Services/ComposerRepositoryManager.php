@@ -86,12 +86,19 @@ final class ComposerRepositoryManager
         }
 
         $normalized = $this->normalizeGitUrl($gitUrl);
-        foreach ($repos as $repo) {
+        foreach ($repos as $index => $repo) {
             if (! is_array($repo)) {
                 continue;
             }
             $existing = $this->normalizeGitUrl((string) ($repo['url'] ?? ''));
             if ($existing !== '' && $existing === $normalized) {
+                if (($repo['type'] ?? '') === 'vcs' && ($repo['no-api'] ?? false) !== true) {
+                    $repos[$index]['no-api'] = true;
+                    $data['repositories'] = array_values($repos);
+
+                    return $this->writeComposerJson($composerPath, $data);
+                }
+
                 return ['ok' => true];
             }
         }
@@ -99,6 +106,8 @@ final class ComposerRepositoryManager
         array_unshift($repos, [
             'type' => 'vcs',
             'url' => $normalized,
+            // Avoid GitHub API rate-limit (403) which makes Composer fall back to SSH.
+            'no-api' => true,
         ]);
 
         $data['repositories'] = array_values($repos);

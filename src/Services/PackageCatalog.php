@@ -203,7 +203,12 @@ final class PackageCatalog
                 $indexed[$key] = $entry;
                 continue;
             }
-            $indexed[$key] = array_merge($entry, $indexed[$key]);
+            $existing = $indexed[$key];
+            $merged = array_merge($entry, $existing);
+            if (array_key_exists('status', $existing)) {
+                $merged['status'] = $existing['status'];
+            }
+            $indexed[$key] = $merged;
         }
 
         return array_values($indexed);

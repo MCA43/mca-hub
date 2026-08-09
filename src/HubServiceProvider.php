@@ -9,6 +9,7 @@ use Mca\Hub\Http\Middleware\EnsureHubAccess;
 use Mca\Hub\Services\ComposerProcess;
 use Mca\Hub\Services\ComposerRepositoryManager;
 use Mca\Hub\Services\GitHubOrgCatalog;
+use Mca\Hub\Services\GitHubPackageProbe;
 use Mca\Hub\Services\HubRegistry;
 use Mca\Hub\Services\InstalledPackageResolver;
 use Mca\Hub\Services\PackageCatalog;
@@ -29,6 +30,7 @@ class HubServiceProvider extends ServiceProvider
         $this->app->singleton(GitHubOrgCatalog::class);
         $this->app->singleton(ComposerProcess::class);
         $this->app->singleton(ComposerRepositoryManager::class);
+        $this->app->singleton(GitHubPackageProbe::class);
         $this->app->singleton(PackageLifecycle::class);
         $this->app->singleton(UpdateChecker::class);
         $this->app->singleton(PackageUpdater::class);

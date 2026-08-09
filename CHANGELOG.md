@@ -18,6 +18,12 @@ Format [Keep a Changelog](https://keepachangelog.com/) esas alınır.
 - Hub cards split into installed vs available sections
 - Package update confirm uses mca-ui modal instead of `window.confirm`
 
+### Fixed
+- Install probe uses GitHub default branch + Contents API (not only raw `main`/`master`)
+- GitHub catalog skips repos without `composer.json`
+- `GitHubPackageProbe` correctly bound in the container
+- Published `captcha` / `smtp` / `seo` / `netgsm` to GitHub; catalog entries are installable again
+- Hub composer installs force HTTPS (`github-protocols`), inject Git into PATH, use `dev-main`, and map cryptic “to run correctly” errors
 ## [0.2.0] - 2026-08-09
 
 ### Added

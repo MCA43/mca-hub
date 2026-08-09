@@ -90,7 +90,7 @@
                   data-mca-confirm-danger="0">
                 @csrf
                 <input type="hidden" name="package" value="{{ $package['name'] }}">
-                <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--update">{{ mca_hub('updates.update_now') }}</button>
+                <button type="submit" class="mca-ui-btn mca-hub-btn mca-hub-btn--update" title="{{ mca_hub('updates.update_button_hint') }}">{{ mca_hub('updates.update_now') }}</button>
             </form>
         @elseif(($package['update_status'] ?? '') === 'path_linked')
             <span class="mca-hub-muted mca-hub-update-hint">{{ mca_hub('updates.path_hint', ['version' => $package['latest_version'] ?? '']) }}</span>

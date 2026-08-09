@@ -221,6 +221,67 @@
     margin: 0;
 }
 
+.mca-hub-update-check {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem 1.25rem;
+    margin-bottom: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--mca-ui-radius);
+    border: 1px dashed #c7d2fe;
+    background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+.mca-hub-update-check__copy {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0.65rem 0.75rem;
+    min-width: min(100%, 18rem);
+    flex: 1 1 16rem;
+}
+
+.mca-hub-update-check__title {
+    display: block;
+    margin: 0 0 0.2rem;
+    font-size: 0.95rem;
+    color: var(--mca-ui-text, #0f172a);
+}
+
+.mca-hub-update-check__hint {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    max-width: 36rem;
+}
+
+.mca-hub-update-check .mca-hub-inline-form {
+    flex: 0 0 auto;
+}
+
+.mca-hub-status--check {
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #c7d2fe;
+}
+
+.mca-hub-btn--check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fff;
+    color: #4338ca;
+    border: 1px solid #a5b4fc;
+}
+
+.mca-hub-btn--check:hover {
+    background: #eef2ff;
+    border-color: #818cf8;
+    color: #3730a3;
+}
+
 .mca-hub-update-banner {
     display: flex;
     flex-wrap: wrap;
@@ -234,10 +295,40 @@
     border: 1px solid #fdba74;
 }
 
+.mca-hub-update-banner__body {
+    flex: 1 1 16rem;
+    min-width: min(100%, 18rem);
+}
+
+.mca-hub-update-banner__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.65rem;
+}
+
+.mca-hub-update-banner__head strong {
+    font-size: 1rem;
+    color: #9a3412;
+}
+
 .mca-hub-update-banner p {
-    margin: 0.25rem 0 0;
+    margin: 0.35rem 0 0;
     color: #9a3412;
     font-size: 0.9rem;
+}
+
+.mca-hub-update-banner__hint {
+    margin: 0.35rem 0 0;
+    font-size: 0.82rem;
+    color: #c2410c;
+}
+
+.mca-hub-update-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
 }
 
 .mca-hub-update-hint {

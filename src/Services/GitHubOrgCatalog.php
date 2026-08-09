@@ -54,9 +54,20 @@ final class GitHubOrgCatalog
             }
 
             $composerName = 'mca/'.$slug;
+            $defaultBranch = (string) ($repo['default_branch'] ?? 'main');
             $extra = config('hub.github.fetch_composer_extra', true)
-                ? $this->readComposerExtra($org, $repoName, (string) ($repo['default_branch'] ?? 'main'))
+                ? $this->readComposerExtra($org, $repoName, $defaultBranch)
                 : [];
+
+            // Skip repos without a publishable composer.json (empty / README-only).
+            if (config('hub.github.fetch_composer_extra', true) && $extra === []) {
+                continue;
+            }
+
+            // Prefer the Composer package name from composer.json when present.
+            if (is_string($extra['name'] ?? null) && str_starts_with((string) $extra['name'], 'mca/')) {
+                $composerName = (string) $extra['name'];
+            }
 
             $hubExtra = is_array($extra['mca'] ?? null) ? $extra['mca'] : [];
             $description = (string) ($repo['description'] ?? $extra['description'] ?? '');
@@ -155,28 +166,9 @@ final class GitHubOrgCatalog
     /** @return array<string, mixed> */
     private function readComposerExtra(string $org, string $repo, string $branch): array
     {
-        $branches = array_values(array_unique([$branch, 'main', 'master']));
+        $probe = app(GitHubPackageProbe::class);
+        $data = $probe->fetchComposerJson($org, $repo, $branch);
 
-        foreach ($branches as $tryBranch) {
-            try {
-                $url = "https://raw.githubusercontent.com/{$org}/{$repo}/{$tryBranch}/composer.json";
-                $response = Http::timeout(8)
-                    ->withHeaders(['User-Agent' => 'mca-hub'])
-                    ->get($url);
-
-                if (! $response->successful()) {
-                    continue;
-                }
-
-                $data = $response->json();
-                if (is_array($data)) {
-                    return $data;
-                }
-            } catch (\Throwable) {
-                continue;
-            }
-        }
-
-        return [];
+        return is_array($data) ? $data : [];
     }
 }

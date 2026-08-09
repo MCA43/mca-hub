@@ -58,6 +58,18 @@ final class PackageInstaller
             ];
         }
 
+        $remoteName = (string) ($probe['package_name'] ?? '');
+        if ($remoteName !== '' && $remoteName !== $composerName) {
+            return [
+                'ok' => false,
+                'message' => mca_hub('lifecycle.composer_name_mismatch', [
+                    'expected' => $composerName,
+                    'actual' => $remoteName,
+                ]),
+                'output' => '',
+            ];
+        }
+
         $ensure = $this->repos->ensureVcsRepository($gitUrl);
         if (! ($ensure['ok'] ?? false)) {
             return [
@@ -70,17 +82,19 @@ final class PackageInstaller
             ];
         }
 
+        // MCA GitHub packages typically publish branch `main` only (no Packagist tags yet).
+        $constraint = (string) config('hub.lifecycle.default_constraint', 'dev-main');
+        $requireSpec = $constraint !== '' ? $composerName.':'.$constraint : $composerName;
+
         $args = [
             'require',
-            $composerName,
+            $requireSpec,
             '--no-interaction',
             '--with-all-dependencies',
             '--prefer-dist',
         ];
 
-        if (config('hub.lifecycle.prefer_stable', config('hub.updates.prefer_stable', true))) {
-            $args[] = '--prefer-stable';
-        }
+        // Explicit branch constraints must not be blocked by --prefer-stable.
 
         $result = $this->composer->run($args);
         $this->checker->forget($composerName);
